@@ -79,6 +79,7 @@
     "webpack": "^5.90.3"
   },
   "dependencies": {
+    "@wavesurfer/react": "^1.0.4",
     "wavesurfer.js": "^7.x"
   }
 }
