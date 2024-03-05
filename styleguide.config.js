@@ -8,8 +8,8 @@ let sections = [
     content: 'README.md',
   },
   {
-    name: 'Button Block',
-    components: ['src/components/Button/Button.js'],
+    name: 'AudioPlayer',
+    components: ['src/components/AudioPlayer/AudioPlayer.js'],
   },
 ];
 
@@ -25,7 +25,7 @@ module.exports = {
       meta: [
         {
           name: 'description',
-          content: 'React component library template',
+          content: 'Audio recorder react component library',
         },
       ],
     },
@@ -92,6 +92,18 @@ module.exports = {
           test: /\.js$/,
           exclude: /node_modules/,
           loader: 'babel-loader',
+        },
+        {
+          test: /\.(mp3|wav)$/,
+          use: [
+            {
+              loader: 'file-loader',
+              options: {
+                name: '[name].[ext]',
+                outputPath: 'audio/', // Папка, куда будут сохраняться аудиофайлы
+              },
+            },
+          ],
         },
       ],
     },
