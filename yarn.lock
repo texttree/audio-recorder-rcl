@@ -1908,6 +1908,11 @@
   dependencies:
     common-tags "^1.8.0"
 
+"@wavesurfer/react@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@wavesurfer/react/-/react-1.0.4.tgz#577bf84152bd25bd7ba6635a5b1694a57e6f6161"
+  integrity sha512-6WkXLhh0EaytyK1B6JqHZmzHQlBz+nbGH5x009tUH6nUIFFXq7zwkDEXqeZuWyVTKgjqcOQGOgavSZ7EbsS6lA==
+
 "@webassemblyjs/ast@1.11.6", "@webassemblyjs/ast@^1.11.5":
   version "1.11.6"
   resolved "https://registry.npmjs.org/@webassemblyjs/ast/-/ast-1.11.6.tgz"
