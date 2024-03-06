@@ -11,6 +11,10 @@ let sections = [
     name: 'AudioPlayer',
     components: ['src/components/AudioPlayer/AudioPlayer.js'],
   },
+  {
+    name: 'Audio Markup',
+    components: ['src/components/AudioMarkup/AudioMarkup.js'],
+  },
 ];
 
 module.exports = {
