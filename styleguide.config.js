@@ -12,6 +12,7 @@ let sections = [
     components: [
       'src/components/Audio/AudioPlayer.js',
       'src/components/Audio/AudioRecorder.js',
+      'src/components/Audio/AudioRecorderTranscriber.js',
       'src/components/Audio/AudioEditor.js',
     ],
   },
