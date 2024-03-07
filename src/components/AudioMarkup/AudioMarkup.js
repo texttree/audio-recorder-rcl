@@ -5,6 +5,7 @@ import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.esm.js';
 function AudioMarkup({ url }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [activeRegion, setActiveRegion] = useState(null);
+  const [regionsArray, setRegionsArray] = useState([]);
 
   const containerSurf = useRef(null);
   const waveSurfer = useRef(null);
@@ -25,7 +26,39 @@ function AudioMarkup({ url }) {
       });
 
       wsRegions.on('region-updated', (region) => {
-        console.log('Updated region', region);
+        setRegionsArray((prevRegionsArray) => {
+          const updatedRegionsArray = prevRegionsArray.map((regionData) => {
+            if (regionData.id === region.id) {
+              return {
+                ...regionData,
+                start: Math.round(region.start * 100) / 100,
+                end: Math.round(region.end * 100) / 100,
+              };
+            }
+            return regionData;
+          });
+
+          updatedRegionsArray.sort((a, b) => a.start - b.start);
+          console.log('updatedRegionsArray', updatedRegionsArray);
+          return updatedRegionsArray;
+        });
+      });
+
+      wsRegions.on('region-created', (region) => {
+        const startInSeconds = Math.round(region.start * 100) / 100;
+        const endInSeconds = Math.round(region.end * 100) / 100;
+        const newRegion = {
+          start: startInSeconds,
+          end: endInSeconds,
+          id: region.id,
+        };
+
+        setRegionsArray((prevRegionsArray) => {
+          const updatedRegionsArray = [...prevRegionsArray, newRegion];
+          updatedRegionsArray.sort((a, b) => a.start - b.start);
+          console.log('updatedRegionsArray', updatedRegionsArray);
+          return updatedRegionsArray;
+        });
       });
 
       let activeRegionTest = null;
@@ -34,6 +67,7 @@ function AudioMarkup({ url }) {
         e.stopPropagation();
         activeRegionTest = region;
         setActiveRegion(region);
+        waveSurfer.current.seekTo(region.start / waveSurfer.current.getDuration());
       });
 
       wsRegions.on('region-out', (region) => {
