@@ -3,7 +3,7 @@ import WaveSurfer from 'wavesurfer.js';
 
 import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.esm.js';
 import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.esm.js';
-import { copy, cut } from './helpers';
+import { copy, cut, insert } from './helpers';
 
 const AudioEditor = ({ url }) => {
   const waveformRef = useRef(null);
@@ -15,7 +15,7 @@ const AudioEditor = ({ url }) => {
   const [coordinates, setCoordinates] = useState(null);
   const [wsRegionInstance, setWsRegionInstance] = useState(null);
   const [copiedAudio, setCopiedAudio] = useState(null);
-
+  const [currentAudioPosition, setcurrentAudioPosition] = useState(null);
   useEffect(() => {
     const wavesurfer = WaveSurfer.create({
       container: waveformRef.current,
@@ -43,7 +43,8 @@ const AudioEditor = ({ url }) => {
       }
     });
 
-    wavesurfer.on('interaction', () => {
+    wavesurfer.on('interaction', (region) => {
+      setcurrentAudioPosition(region);
       wsRegions.clearRegions();
     });
     setMainWs(wavesurfer);
@@ -57,8 +58,12 @@ const AudioEditor = ({ url }) => {
     if (!coordinates) {
       return;
     }
-    const chunk = copy(audioData, coordinates.start, coordinates.end);
-    setCopiedAudio(chunk);
+    const { arrayBuffer: arrBuffer, audio: chunk } = copy(
+      audioData,
+      coordinates.start,
+      coordinates.end
+    );
+    setCopiedAudio(arrBuffer);
     const wavesurfer = WaveSurfer.create({
       container: waveformRef2.current,
       waveColor: 'green',
@@ -80,6 +85,14 @@ const AudioEditor = ({ url }) => {
     mainWs.load(chunk);
     wsRegionInstance.clearRegions();
   };
+  const insertChunk = () => {
+    if (!currentAudioPosition && !copiedAudio) {
+      return;
+    }
+    const { audio: newAudio } = insert(audioData, currentAudioPosition, copiedAudio);
+    mainWs.load(newAudio);
+    wsRegionInstance.clearRegions();
+  };
 
   const onPlayPauseCopied = () => {
     copiedWs && copiedWs.playPause();
@@ -93,9 +106,10 @@ const AudioEditor = ({ url }) => {
       <div ref={waveformRef}></div>
       <button onClick={copyNewChunk}>copy</button>
       <button onClick={cutChunk}>cut chunk</button>
-      <button disabled={!copiedAudio} onClick={onPlayPauseMain}>
-        play
+      <button disabled={!copiedAudio && !currentAudioPosition} onClick={insertChunk}>
+        insert
       </button>
+      <button onClick={onPlayPauseMain}>play</button>
       <div ref={waveformRef2}></div>
       {copiedAudio && <button onClick={onPlayPauseCopied}>play</button>}
     </>

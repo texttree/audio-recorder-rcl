@@ -53,70 +53,6 @@ export function bufferToWave(abuffer, offset = 0, len) {
   }
 }
 
-export function getWavBytes(buffer, options) {
-  const type = options.isFloat ? Float32Array : Uint16Array;
-  const numFrames = buffer.byteLength / type.BYTES_PER_ELEMENT;
-
-  const headerBytes = getWavHeader(Object.assign({}, options, { numFrames }));
-  const wavBytes = new Uint8Array(headerBytes.length + buffer.byteLength);
-
-  // prepend header, then add pcmBytes
-  wavBytes.set(headerBytes, 0);
-  wavBytes.set(new Uint8Array(buffer), headerBytes.length);
-
-  return wavBytes;
-}
-
-export function getWavHeader(options) {
-  const numFrames = options.numFrames;
-  const numChannels = options.numChannels || 2;
-  const sampleRate = options.sampleRate || 44100;
-  const bytesPerSample = options.isFloat ? 4 : 2;
-  const format = options.isFloat ? 3 : 1;
-
-  const blockAlign = numChannels * bytesPerSample;
-  const byteRate = sampleRate * blockAlign;
-  const dataSize = numFrames * blockAlign;
-
-  const buffer = new ArrayBuffer(44);
-  const dv = new DataView(buffer);
-
-  let p = 0;
-
-  function writeString(s) {
-    for (let i = 0; i < s.length; i++) {
-      dv.setUint8(p + i, s.charCodeAt(i));
-    }
-    p += s.length;
-  }
-
-  function writeUint32(d) {
-    dv.setUint32(p, d, true);
-    p += 4;
-  }
-
-  function writeUint16(d) {
-    dv.setUint16(p, d, true);
-    p += 2;
-  }
-
-  writeString('RIFF'); // ChunkID
-  writeUint32(dataSize + 36); // ChunkSize
-  writeString('WAVE'); // Format
-  writeString('fmt '); // Subchunk1ID
-  writeUint32(16); // Subchunk1Size
-  writeUint16(format); // AudioFormat https://i.stack.imgur.com/BuSmb.png
-  writeUint16(numChannels); // NumChannels
-  writeUint32(sampleRate); // SampleRate
-  writeUint32(byteRate); // ByteRate
-  writeUint16(blockAlign); // BlockAlign
-  writeUint16(bytesPerSample * 8); // BitsPerSample
-  writeString('data'); // Subchunk2ID
-  writeUint32(dataSize); // Subchunk2Size
-
-  return new Uint8Array(buffer);
-}
-
 export const copy = (arrayBuffer, startSeconds, endSeconds) => {
   const sampleRate = arrayBuffer.sampleRate;
   const start = Math.floor(startSeconds * sampleRate);
@@ -124,7 +60,7 @@ export const copy = (arrayBuffer, startSeconds, endSeconds) => {
   const channels = [];
   for (let channel = 0; channel < arrayBuffer.numberOfChannels; channel++) {
     const channelData = arrayBuffer.getChannelData(channel);
-    const slicedData = channelData.subarray(start, end); // Вырезаем кусок данных
+    const slicedData = channelData.subarray(start, end);
     channels.push(slicedData);
   }
   const context = new AudioContext();
@@ -137,7 +73,10 @@ export const copy = (arrayBuffer, startSeconds, endSeconds) => {
     newAudioBuffer.copyToChannel(channels[channel], channel);
   }
 
-  return bufferToWave(newAudioBuffer, 0, newAudioBuffer.length);
+  return {
+    arrayBuffer: newAudioBuffer,
+    audio: bufferToWave(newAudioBuffer, 0, newAudioBuffer.length),
+  };
 };
 
 export const cut = (arrayBuffer, startSeconds, endSeconds) => {
@@ -149,8 +88,8 @@ export const cut = (arrayBuffer, startSeconds, endSeconds) => {
 
   for (let channel = 0; channel < arrayBuffer.numberOfChannels; channel++) {
     const channelData = arrayBuffer.getChannelData(channel);
-    const beforeCut = channelData.subarray(0, start); // Данные до начала отрезка
-    const afterCut = channelData.subarray(end); // Данные после конца отрезка
+    const beforeCut = channelData.subarray(0, start);
+    const afterCut = channelData.subarray(end);
     const combinedData = new Float32Array(beforeCut.length + afterCut.length);
     combinedData.set(beforeCut, 0);
     combinedData.set(afterCut, beforeCut.length);
@@ -170,3 +109,37 @@ export const cut = (arrayBuffer, startSeconds, endSeconds) => {
 
   return bufferToWave(newAudioBuffer, 0, newAudioBuffer.length);
 };
+
+export function insert(mainAudio, currentTime, insertAudio) {
+  const insertTime = currentTime;
+  const insertSample = Math.floor(insertTime * mainAudio.sampleRate);
+
+  const mainAudioData = mainAudio.getChannelData(0);
+  const insertAudioData = insertAudio.getChannelData(0);
+
+  const mainAudioBeforeInsert = mainAudioData.subarray(0, insertSample);
+  const mainAudioAfterInsert = mainAudioData.subarray(insertSample);
+
+  const newAudioData = new Float32Array(
+    mainAudioBeforeInsert.length + insertAudioData.length + mainAudioAfterInsert.length
+  );
+  newAudioData.set(mainAudioBeforeInsert, 0);
+  newAudioData.set(insertAudioData, mainAudioBeforeInsert.length);
+  newAudioData.set(
+    mainAudioAfterInsert,
+    mainAudioBeforeInsert.length + insertAudioData.length
+  );
+
+  const context = new AudioContext();
+  const newAudioBuffer = context.createBuffer(
+    mainAudio.numberOfChannels,
+    newAudioData.length,
+    mainAudio.sampleRate
+  );
+
+  newAudioBuffer.copyToChannel(newAudioData, 0);
+  return {
+    arrayBuffer: newAudioBuffer,
+    audio: bufferToWave(newAudioBuffer, 0, newAudioBuffer.length),
+  };
+}
