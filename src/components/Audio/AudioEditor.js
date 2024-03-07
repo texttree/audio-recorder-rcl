@@ -9,8 +9,12 @@ const AudioEditor = ({ url }) => {
   const waveformRef = useRef(null);
   const waveformRef2 = useRef(null);
   const [audioData, setAudioData] = useState(null);
-  const [ws, setWs] = useState(null);
+  const [mainWs, setMainWs] = useState(null);
+  const [copiedWs, setCopiedWs] = useState(null);
+
   const [coordinates, setCoordinates] = useState(null);
+  const [wsRegionInstance, setWsRegionInstance] = useState(null);
+  const [copiedAudio, setCopiedAudio] = useState(null);
 
   useEffect(() => {
     const wavesurfer = WaveSurfer.create({
@@ -27,6 +31,7 @@ const AudioEditor = ({ url }) => {
       setAudioData(decodedData);
     });
     const wsRegions = wavesurfer.registerPlugin(RegionsPlugin.create());
+
     wsRegions.enableDragSelection({
       color: 'rgba(255, 0, 0, 0.1)',
     });
@@ -41,7 +46,8 @@ const AudioEditor = ({ url }) => {
     wavesurfer.on('interaction', () => {
       wsRegions.clearRegions();
     });
-    setWs(wavesurfer);
+    setMainWs(wavesurfer);
+    setWsRegionInstance(wsRegions);
     return () => {
       wavesurfer.destroy();
     };
@@ -52,6 +58,7 @@ const AudioEditor = ({ url }) => {
       return;
     }
     const chunk = copy(audioData, coordinates.start, coordinates.end);
+    setCopiedAudio(chunk);
     const wavesurfer = WaveSurfer.create({
       container: waveformRef2.current,
       waveColor: 'green',
@@ -61,7 +68,7 @@ const AudioEditor = ({ url }) => {
       sampleRate: audioData.sampleRate,
     });
 
-    setWs(wavesurfer);
+    setCopiedWs(wavesurfer);
   };
 
   const cutChunk = () => {
@@ -69,29 +76,28 @@ const AudioEditor = ({ url }) => {
       return;
     }
     const chunk = cut(audioData, coordinates.start, coordinates.end);
-    const wavesurfer = WaveSurfer.create({
-      container: waveformRef2.current,
-      waveColor: 'green',
-      progressColor: 'purple',
-      cursorColor: 'navy',
-      url: chunk,
-      sampleRate: audioData.sampleRate,
-    });
 
-    setWs(wavesurfer);
+    mainWs.load(chunk);
+    wsRegionInstance.clearRegions();
   };
 
-  const onPlayPause = () => {
-    ws && ws.playPause();
+  const onPlayPauseCopied = () => {
+    copiedWs && copiedWs.playPause();
+  };
+  const onPlayPauseMain = () => {
+    mainWs && mainWs.playPause();
   };
 
   return (
     <>
       <div ref={waveformRef}></div>
-      <div ref={waveformRef2}></div>
       <button onClick={copyNewChunk}>copy</button>
       <button onClick={cutChunk}>cut chunk</button>
-      <button onClick={onPlayPause}>play</button>
+      <button disabled={!copiedAudio} onClick={onPlayPauseMain}>
+        play
+      </button>
+      <div ref={waveformRef2}></div>
+      {copiedAudio && <button onClick={onPlayPauseCopied}>play</button>}
     </>
   );
 };
