@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useImperativeHandle } from 'react';
 import WaveSurfer from 'wavesurfer.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.esm.js';
+import Regions from 'wavesurfer.js/dist/plugins/regions.esm.js';
 
 const AudioPlayer = React.forwardRef(
   ({ url, timelinePlugin = {}, wavesurferProps }, ref) => {
@@ -18,9 +19,12 @@ const AudioPlayer = React.forwardRef(
         );
       }
 
+      plugins.push(Regions.create());
+
       wavesurfer.current = WaveSurfer.create({
         container: containerRef.current,
-
+        dragToSeek: true,
+        enableDragSelection: true,
         plugins,
         ...wavesurferProps,
       });
