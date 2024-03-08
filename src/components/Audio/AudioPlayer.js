@@ -24,7 +24,9 @@ const AudioPlayer = ({ url }) => {
   return (
     <>
       <div ref={containerRef} />
-      <button onClick={onPlayPause}>Play/Pause</button>
+      <button onClick={onPlayPause} style={{ marginTop: '10px' }}>
+        Play/Pause
+      </button>
     </>
   );
 };
