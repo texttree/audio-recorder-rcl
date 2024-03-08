@@ -32,8 +32,8 @@ const AudioRecorder = () => {
       setIsRecording(true);
       setIsPausedRecording(false);
       record.startRecording({}).then(() => {
-        setIsRecording(false);
-        setIsPausedRecording(true);
+        setIsRecording(true);
+        setIsPausedRecording(false);
       });
     }
   };
@@ -58,32 +58,27 @@ const AudioRecorder = () => {
       });
 
       const newRecord = newWaveSurfer.registerPlugin(
-        RecordPlugin.create({ scrollingWaveform: true, renderRecordedAudio: true })
+        RecordPlugin.create({
+          scrollingWaveform: true,
+          renderRecordedAudio: true,
+          // mimeType: 'audio/***',
+          audioBitsPerSecond: 128000,
+        })
       );
 
       newRecord.on('record-end', (blob) => {
         const container = recordingsRef.current;
         const recordedUrl = URL.createObjectURL(blob);
 
-        const newWaveSurfer = WaveSurfer.create({
-          container,
-          waveColor: 'rgb(200, 100, 0)',
-          progressColor: 'rgb(100, 50, 0)',
-          url: recordedUrl,
-        });
-
-        const button = document.createElement('button');
-        button.textContent = 'Play';
-        button.onclick = () => newWaveSurfer.playPause();
-        newWaveSurfer.on('pause', () => (button.textContent = 'Play'));
-        newWaveSurfer.on('play', () => (button.textContent = 'Pause'));
-        container.appendChild(button);
         const link = document.createElement('a');
         Object.assign(link, {
           href: recordedUrl,
           download: 'recording.mp3',
           textContent: 'Download recording',
         });
+        while (container.firstChild) {
+          container.removeChild(container.firstChild);
+        }
         container.appendChild(link);
       });
       newRecord.on('record-progress', (time) => {
@@ -111,17 +106,12 @@ const AudioRecorder = () => {
       .join(':');
     setTime(formattedTime);
   };
-
   return (
     <div>
       <button id="record" onClick={handleRecord}>
         {isRecording || isPausedRecording ? 'Stop' : 'Record'}
       </button>
-      <button
-        id="pause"
-        style={{ display: isRecording || isPausedRecording ? 'inline' : 'none' }}
-        onClick={handlePause}
-      >
+      <button id="pause" onClick={handlePause}>
         {isPausedRecording ? 'Resume' : 'Pause'}
       </button>
       <p ref={progressRef}>{time}</p>
@@ -135,6 +125,13 @@ const AudioRecorder = () => {
         }}
       ></div>
       <div ref={recordingsRef} style={{ margin: '1rem 0' }}></div>
+      <button
+        onClick={() => {
+          wavesurfer.playPause();
+        }}
+      >
+        play
+      </button>
     </div>
   );
 };

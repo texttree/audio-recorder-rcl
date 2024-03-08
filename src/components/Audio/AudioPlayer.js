@@ -1,34 +1,52 @@
-import React, { useRef, useEffect, useMemo } from 'react';
-import { useWavesurfer } from '@wavesurfer/react';
+import React, { useRef, useEffect, useImperativeHandle } from 'react';
+import WaveSurfer from 'wavesurfer.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.esm.js';
 import Regions from 'wavesurfer.js/dist/plugins/regions.esm.js';
 
-const AudioPlayer = ({ url }) => {
-  const containerRef = useRef();
+const AudioPlayer = React.forwardRef(
+  ({ url, timelinePlugin = {}, wavesurferProps }, ref) => {
+    const containerRef = useRef();
+    const wavesurfer = useRef(null);
 
-  const { wavesurfer } = useWavesurfer({
-    container: containerRef,
-    url,
-    waveColor: 'purple',
-    height: '100',
-    plugins: useMemo(() => [TimelinePlugin.create(), Regions.create()], []),
-    dragToSeek: true,
-    enableDragSelection: true,
-  });
+    useEffect(() => {
+      const plugins = [];
+      if (Object.keys(timelinePlugin)?.length) {
+        plugins.push(
+          TimelinePlugin.create({
+            container: containerRef.current,
+            ...timelinePlugin,
+          })
+        );
+      }
 
-  const onPlayPause = () => {
-    wavesurfer && wavesurfer.playPause();
-    console.log(wavesurfer);
-  };
+      plugins.push(Regions.create());
 
-  return (
-    <>
-      <div ref={containerRef} />
-      <button onClick={onPlayPause} style={{ marginTop: '10px' }}>
-        Play/Pause
-      </button>
-    </>
-  );
-};
+      wavesurfer.current = WaveSurfer.create({
+        container: containerRef.current,
+        dragToSeek: true,
+        enableDragSelection: true,
+        plugins,
+        ...wavesurferProps,
+      });
+
+      wavesurfer.current.load(url);
+
+      return () => {
+        wavesurfer.current.destroy();
+      };
+    }, [url, timelinePlugin]);
+
+    const onPlayPause = () => {
+      wavesurfer.current.playPause();
+    };
+
+    useImperativeHandle(ref, () => ({
+      onPlayPause: onPlayPause,
+    }));
+
+    return <div ref={containerRef} />;
+  }
+);
 
 export default AudioPlayer;
+AudioPlayer.displayName = 'AudioPlayer';
