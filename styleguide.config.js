@@ -13,11 +13,8 @@ let sections = [
       'src/components/Audio/AudioPlayer.js',
       'src/components/Audio/AudioRecorder.js',
       'src/components/Audio/AudioEditor.js',
+      'src/components/Audio/AudioMarkup.js',
     ],
-  },
-  {
-    name: 'Audio Markup',
-    components: ['src/components/AudioMarkup/AudioMarkup.js'],
   },
 ];
 

@@ -6,6 +6,7 @@ function AudioMarkup({ url }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [activeRegion, setActiveRegion] = useState(null);
   const [regionsArray, setRegionsArray] = useState([]);
+  const [forceUpdate, setForceUpdate] = useState(false);
 
   const containerSurf = useRef(null);
   const waveSurfer = useRef(null);
@@ -137,11 +138,19 @@ function AudioMarkup({ url }) {
 
   const handleMarkerModeToggle = () => {
     isMarkerModeEnabledRef.current = !isMarkerModeEnabledRef.current;
+    setForceUpdate((prev) => !prev);
   };
 
   const handleGetRegions = () => {
-    const regionsString = JSON.stringify(regionsArray);
+    const filteredRegions = regionsArray.filter((region) => region.start !== region.end);
+    const regionsString = JSON.stringify(filteredRegions);
     alert(regionsString);
+  };
+
+  const handleGetBookmarks = () => {
+    const bookmarks = regionsArray.filter((region) => region.start === region.end);
+    const bookmarksString = JSON.stringify(bookmarks);
+    alert(bookmarksString);
   };
 
   const handleDeleteAllRegions = () => {
@@ -167,14 +176,25 @@ function AudioMarkup({ url }) {
         <button onClick={handleMarkerModeToggle}>
           {isMarkerModeEnabledRef.current ? 'Disable Bookmark mode' : 'Bookmark'}
         </button>
-        <button onClick={handleGetRegions} disabled={regionsArray.length === 0}>
+        <button
+          onClick={handleGetRegions}
+          disabled={!regionsArray.some((region) => region.start !== region.end)}
+        >
           Get Regions
         </button>
+        <button
+          onClick={handleGetBookmarks}
+          disabled={!regionsArray.some((region) => region.start === region.end)}
+        >
+          Get Bookmarks
+        </button>
         <button onClick={handleDeleteAllRegions} disabled={regionsArray.length === 0}>
-          Delete All Regions
+          Delete All
         </button>
         <button onClick={handleDeleteRegion} disabled={!activeRegion}>
-          Delete Region
+          {activeRegion && activeRegion.start === activeRegion.end
+            ? 'Delete Bookmark'
+            : 'Delete Region'}
         </button>
       </div>
       <p>Active Region: {activeRegion ? activeRegion.id : 'None'}</p>
