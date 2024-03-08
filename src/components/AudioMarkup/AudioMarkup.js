@@ -99,6 +99,10 @@ function AudioMarkup({ url }) {
         setActiveRegion(null);
       });
 
+      ws.on('finish', () => {
+        setIsPlaying(false);
+      });
+
       waveSurfer.current = ws;
     }
 
@@ -137,7 +141,7 @@ function AudioMarkup({ url }) {
       <div ref={containerSurf} />
       <button onClick={handlePlayPause}>{isPlaying ? 'Pause' : 'Play'}</button>
       <button onClick={handleMarkerModeToggle}>
-        {isMarkerModeEnabledRef.current ? 'Отключить режим маркеров' : 'Маркер'}
+        {isMarkerModeEnabledRef.current ? 'Disable Bookmark mode' : 'Bookmark'}
       </button>
       <p>Active Region: {activeRegion ? activeRegion.id : 'None'}</p>
     </>
