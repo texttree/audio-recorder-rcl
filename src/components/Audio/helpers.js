@@ -111,35 +111,44 @@ export const cut = (arrayBuffer, startSeconds, endSeconds) => {
 };
 
 export function insert(mainAudio, currentTime, insertAudio) {
-  const insertTime = currentTime;
-  const insertSample = Math.floor(insertTime * mainAudio.sampleRate);
+  const insertSample = Math.floor(currentTime * mainAudio.sampleRate);
 
-  const mainAudioData = mainAudio.getChannelData(0);
-  const insertAudioData = insertAudio.getChannelData(0);
-
-  const mainAudioBeforeInsert = mainAudioData.subarray(0, insertSample);
-  const mainAudioAfterInsert = mainAudioData.subarray(insertSample);
-
-  const newAudioData = new Float32Array(
-    mainAudioBeforeInsert.length + insertAudioData.length + mainAudioAfterInsert.length
-  );
-  newAudioData.set(mainAudioBeforeInsert, 0);
-  newAudioData.set(insertAudioData, mainAudioBeforeInsert.length);
-  newAudioData.set(
-    mainAudioAfterInsert,
-    mainAudioBeforeInsert.length + insertAudioData.length
-  );
-
-  const context = new AudioContext();
-  const newAudioBuffer = context.createBuffer(
+  // Prepare a new audio buffer that can contain the data from both buffers
+  const newAudioLength = mainAudio.length + insertAudio.length;
+  const newAudioBuffer = new AudioContext().createBuffer(
     mainAudio.numberOfChannels,
-    newAudioData.length,
+    newAudioLength,
     mainAudio.sampleRate
   );
 
-  newAudioBuffer.copyToChannel(newAudioData, 0);
+  // Iterate over each channel
+  for (let channel = 0; channel < mainAudio.numberOfChannels; channel++) {
+    // Get the data for each buffer's channel
+    const mainAudioData = mainAudio.getChannelData(channel);
+    const insertAudioData = insertAudio.getChannelData(
+      channel % insertAudio.numberOfChannels
+    );
+
+    // Calculate the insert positions for the channel data
+    const mainAudioBeforeInsert = mainAudioData.subarray(0, insertSample);
+    const mainAudioAfterInsert = mainAudioData.subarray(insertSample);
+
+    // Create a new array for the combined audio data
+    const newChannelData = newAudioBuffer.getChannelData(channel);
+
+    // Combine the data into the new array
+    newChannelData.set(mainAudioBeforeInsert, 0);
+    newChannelData.set(insertAudioData, mainAudioBeforeInsert.length);
+    newChannelData.set(
+      mainAudioAfterInsert,
+      mainAudioBeforeInsert.length + insertAudioData.length
+    );
+  }
+
+  // The returned object should include the full buffer and the means to convert it to a wav if needed
   return {
     arrayBuffer: newAudioBuffer,
-    audio: bufferToWave(newAudioBuffer, 0, newAudioBuffer.length),
+    // bufferToWave should be a function that can convert an AudioBuffer to a WAV file ArrayBuffer
+    audio: bufferToWave(newAudioBuffer, 0, newAudioLength), // Assuming `bufferToWave` is defined
   };
 }
