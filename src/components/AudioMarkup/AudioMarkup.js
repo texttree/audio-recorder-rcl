@@ -10,6 +10,7 @@ function AudioMarkup({ url }) {
   const containerSurf = useRef(null);
   const waveSurfer = useRef(null);
   const prevActiveRegion = useRef(null);
+  const isMarkerModeEnabledRef = useRef(false);
 
   useEffect(() => {
     if (!waveSurfer.current) {
@@ -23,6 +24,23 @@ function AudioMarkup({ url }) {
 
       wsRegions.enableDragSelection({
         color: 'rgba(255, 0, 0, 0.1)',
+      });
+
+      ws.on('click', () => {
+        if (isMarkerModeEnabledRef.current) {
+          const time = waveSurfer.current.getCurrentTime();
+          wsRegions.addRegion({
+            start: time,
+            color: 'blue',
+            draggable: false,
+            resize: false,
+            content: '✪',
+          });
+        }
+      });
+
+      wsRegions.on('region-click', (region) => {
+        waveSurfer.current.seekTo(region.start);
       });
 
       wsRegions.on('region-updated', (region) => {
@@ -110,11 +128,18 @@ function AudioMarkup({ url }) {
     }
   };
 
+  const handleMarkerModeToggle = () => {
+    isMarkerModeEnabledRef.current = !isMarkerModeEnabledRef.current;
+  };
+
   return (
     <>
       <div ref={containerSurf} />
       <button onClick={handlePlayPause}>{isPlaying ? 'Pause' : 'Play'}</button>
-      <p>Active Region: {activeRegion ? activeRegion.id : 'None'}</p>{' '}
+      <button onClick={handleMarkerModeToggle}>
+        {isMarkerModeEnabledRef.current ? 'Отключить режим маркеров' : 'Маркер'}
+      </button>
+      <p>Active Region: {activeRegion ? activeRegion.id : 'None'}</p>
     </>
   );
 }
