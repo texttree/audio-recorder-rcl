@@ -113,7 +113,7 @@ const AudioRecorderTranscriber = () => {
 
     const voice2text = new VoiceToText({
       converter: 'vosk',
-      language: 'ru', // The language of the speech
+      language: 'en', // The language of the speech
     });
     // Start the speech recognition
     voice2text.init();
