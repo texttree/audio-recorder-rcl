@@ -81,7 +81,7 @@
   },
   "dependencies": {
     "@wavesurfer/react": "^1.0.4",
-    "voice2text": "file:.yalc/voice2text",
+    "@texttree/voice2text": "^0.5.2",
     "wavesurfer.js": "^7.x"
   }
 }

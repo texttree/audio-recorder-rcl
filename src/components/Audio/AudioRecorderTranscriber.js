@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import WaveSurfer from 'wavesurfer.js';
 import RecordPlugin from 'wavesurfer.js/dist/plugins/record.esm.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.esm.js';
-import VoiceToText from 'voice2text';
+import VoiceToText from '@texttree/voice2text';
 
 const AudioRecorderTranscriber = () => {
   const v2t = useRef();

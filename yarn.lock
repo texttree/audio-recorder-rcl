@@ -1660,6 +1660,14 @@
   resolved "https://registry.npmjs.org/@popperjs/core/-/core-2.9.2.tgz"
   integrity sha512-VZMYa7+fXHdwIq1TDhSXoVmSPEGM/aa+6Aiq3nVVJ9bXr24zScr+NlKFKC3iPljA7ho/GAZr+d2jOf5GIRC30Q==
 
+"@texttree/voice2text@^0.5.2":
+  version "0.5.2"
+  resolved "https://registry.yarnpkg.com/@texttree/voice2text/-/voice2text-0.5.2.tgz#a300aad35a84bf50013094207524a93e7bf28424"
+  integrity sha512-7a3BscOuQ+4nuw1AEfxAQdqQO7Vpz8y+scaCRmKv9v3bxx8xiR0byP+R1V/OYs96ty9wKbMznUt+ey6ekhdLQA==
+  dependencies:
+    tslib "^2.6.2"
+    uuid "^9.0.1"
+
 "@tippyjs/react@4.1.0":
   version "4.1.0"
   resolved "https://registry.npmjs.org/@tippyjs/react/-/react-4.1.0.tgz"
@@ -8471,12 +8479,6 @@ vfile@^4.0.0:
     is-buffer "^2.0.0"
     unist-util-stringify-position "^2.0.0"
     vfile-message "^2.0.0"
-
-"voice2text@file:.yalc/voice2text":
-  version "0.5.2"
-  dependencies:
-    tslib "^2.6.2"
-    uuid "^9.0.1"
 
 watchpack@^2.4.0:
   version "2.4.0"
