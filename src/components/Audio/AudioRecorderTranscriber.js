@@ -10,7 +10,9 @@ const AudioRecorderTranscriber = () => {
   const recordingsRef = useRef(null);
   const progressRef = useRef(null);
   const [time, setTime] = useState('00:00');
+  const [isDisabled, setIsDisabled] = useState(true);
   const [transcribedText, setTranscribedText] = useState('');
+  const [tempTranscribedText, setTempTranscribedText] = useState('');
   const [wavesurfer, setWaveSurfer] = useState(null);
   const [record, setRecord] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
@@ -30,7 +32,7 @@ const AudioRecorderTranscriber = () => {
 
   const handleRecord = () => {
     if (record.isRecording() || isPausedRecording) {
-      v2t.current.stop();
+      v2t.current.pause();
       record.stopRecording();
       setIsRecording(false);
       setIsPausedRecording(false);
@@ -111,10 +113,21 @@ const AudioRecorderTranscriber = () => {
     v2t.current = voice2text;
     // Listen to the result event
     window.addEventListener('voice', (e) => {
-      if (e.detail.type === 'FINAL') {
-        setTranscribedText((prev) => prev + ' ' + e.detail.text);
-      }
       console.log(e.detail);
+      switch (e.detail.type) {
+        case 'PARTIAL':
+          setTempTranscribedText(e.detail.text);
+          break;
+        case 'STATUS':
+          setIsDisabled(e.detail.text === 'LOADED' ? false : e.detail.text === 'LOADING');
+          break;
+        case 'FINAL':
+          setTempTranscribedText('');
+          setTranscribedText((prev) => prev + ' ' + e.detail.text);
+          break;
+        default:
+          break;
+      }
     });
 
     return () => {
@@ -137,7 +150,7 @@ const AudioRecorderTranscriber = () => {
 
   return (
     <div>
-      <button id="record" onClick={handleRecord}>
+      <button id="record" onClick={handleRecord} disabled={isDisabled}>
         {isRecording || isPausedRecording ? 'Stop' : 'Record'}
       </button>
       <button
@@ -157,7 +170,9 @@ const AudioRecorderTranscriber = () => {
           overflow: 'auto',
         }}
       ></div>
-      <div>{transcribedText}</div>
+      <div>
+        {transcribedText} {tempTranscribedText}
+      </div>
       <div ref={recordingsRef} style={{ margin: '1rem 0' }}></div>
     </div>
   );
