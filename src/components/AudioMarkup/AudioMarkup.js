@@ -11,6 +11,7 @@ function AudioMarkup({ url }) {
   const waveSurfer = useRef(null);
   const prevActiveRegion = useRef(null);
   const isMarkerModeEnabledRef = useRef(false);
+  const wsRegions = useRef(null);
 
   useEffect(() => {
     if (!waveSurfer.current) {
@@ -20,16 +21,18 @@ function AudioMarkup({ url }) {
         progressColor: 'rgb(100, 0, 100)',
         url,
       });
-      const wsRegions = ws.registerPlugin(RegionsPlugin.create());
 
-      wsRegions.enableDragSelection({
+      const regions = RegionsPlugin.create();
+      wsRegions.current = ws.registerPlugin(regions);
+
+      wsRegions.current.enableDragSelection({
         color: 'rgba(255, 0, 0, 0.1)',
       });
 
       ws.on('click', () => {
         if (isMarkerModeEnabledRef.current) {
           const time = waveSurfer.current.getCurrentTime();
-          wsRegions.addRegion({
+          wsRegions.current.addRegion({
             start: time,
             color: 'blue',
             draggable: false,
@@ -39,11 +42,11 @@ function AudioMarkup({ url }) {
         }
       });
 
-      wsRegions.on('region-click', (region) => {
+      wsRegions.current.on('region-click', (region) => {
         waveSurfer.current.seekTo(region.start);
       });
 
-      wsRegions.on('region-updated', (region) => {
+      wsRegions.current.on('region-updated', (region) => {
         setRegionsArray((prevRegionsArray) => {
           const updatedRegionsArray = prevRegionsArray.map((regionData) => {
             if (regionData.id === region.id) {
@@ -62,7 +65,7 @@ function AudioMarkup({ url }) {
         });
       });
 
-      wsRegions.on('region-created', (region) => {
+      wsRegions.current.on('region-created', (region) => {
         const startInSeconds = Math.round(region.start * 100) / 100;
         const endInSeconds = Math.round(region.end * 100) / 100;
         const newRegion = {
@@ -81,14 +84,14 @@ function AudioMarkup({ url }) {
 
       let activeRegionTest = null;
 
-      wsRegions.on('region-clicked', (region, e) => {
+      wsRegions.current.on('region-clicked', (region, e) => {
         e.stopPropagation();
         activeRegionTest = region;
         setActiveRegion(region);
         waveSurfer.current.seekTo(region.start / waveSurfer.current.getDuration());
       });
 
-      wsRegions.on('region-out', (region) => {
+      wsRegions.current.on('region-out', (region) => {
         if (activeRegionTest === region) {
           waveSurfer.current.pause();
           setIsPlaying(false);
@@ -136,13 +139,44 @@ function AudioMarkup({ url }) {
     isMarkerModeEnabledRef.current = !isMarkerModeEnabledRef.current;
   };
 
+  const handleGetRegions = () => {
+    const regionsString = JSON.stringify(regionsArray);
+    alert(regionsString);
+  };
+
+  const handleDeleteAllRegions = () => {
+    if (wsRegions.current) {
+      wsRegions.current.clearRegions();
+      setRegionsArray([]);
+    }
+  };
+
+  const handleDeleteRegion = () => {
+    if (activeRegion) {
+      activeRegion.remove();
+      setRegionsArray(regionsArray.filter((region) => region.id !== activeRegion.id));
+      setActiveRegion(null);
+    }
+  };
+
   return (
     <>
       <div ref={containerSurf} />
-      <button onClick={handlePlayPause}>{isPlaying ? 'Pause' : 'Play'}</button>
-      <button onClick={handleMarkerModeToggle}>
-        {isMarkerModeEnabledRef.current ? 'Disable Bookmark mode' : 'Bookmark'}
-      </button>
+      <div style={{ paddingTop: '10px', display: 'flex', gap: '10px' }}>
+        <button onClick={handlePlayPause}>{isPlaying ? 'Pause' : 'Play'}</button>
+        <button onClick={handleMarkerModeToggle}>
+          {isMarkerModeEnabledRef.current ? 'Disable Bookmark mode' : 'Bookmark'}
+        </button>
+        <button onClick={handleGetRegions} disabled={regionsArray.length === 0}>
+          Get Regions
+        </button>
+        <button onClick={handleDeleteAllRegions} disabled={regionsArray.length === 0}>
+          Delete All Regions
+        </button>
+        <button onClick={handleDeleteRegion} disabled={!activeRegion}>
+          Delete Region
+        </button>
+      </div>
       <p>Active Region: {activeRegion ? activeRegion.id : 'None'}</p>
     </>
   );
