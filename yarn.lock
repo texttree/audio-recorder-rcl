@@ -1660,6 +1660,14 @@
   resolved "https://registry.npmjs.org/@popperjs/core/-/core-2.9.2.tgz"
   integrity sha512-VZMYa7+fXHdwIq1TDhSXoVmSPEGM/aa+6Aiq3nVVJ9bXr24zScr+NlKFKC3iPljA7ho/GAZr+d2jOf5GIRC30Q==
 
+"@texttree/voice2text@^0.5.2":
+  version "0.5.2"
+  resolved "https://registry.yarnpkg.com/@texttree/voice2text/-/voice2text-0.5.2.tgz#a300aad35a84bf50013094207524a93e7bf28424"
+  integrity sha512-7a3BscOuQ+4nuw1AEfxAQdqQO7Vpz8y+scaCRmKv9v3bxx8xiR0byP+R1V/OYs96ty9wKbMznUt+ey6ekhdLQA==
+  dependencies:
+    tslib "^2.6.2"
+    uuid "^9.0.1"
+
 "@tippyjs/react@4.1.0":
   version "4.1.0"
   resolved "https://registry.npmjs.org/@tippyjs/react/-/react-4.1.0.tgz"
@@ -8426,6 +8434,11 @@ uuid@^8.3.2:
   version "8.3.2"
   resolved "https://registry.npmjs.org/uuid/-/uuid-8.3.2.tgz"
   integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
+
+uuid@^9.0.1:
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-9.0.1.tgz#e188d4c8853cc722220392c424cd637f32293f30"
+  integrity sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==
 
 v8-to-istanbul@^7.1.0:
   version "7.1.2"
