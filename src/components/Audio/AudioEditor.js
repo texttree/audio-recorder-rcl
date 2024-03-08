@@ -116,13 +116,15 @@ const AudioEditor = ({ url }) => {
   return (
     <>
       <div ref={waveformRef}></div>
-      <button onClick={copyNewChunk}>copy</button>
-      <button onClick={cutChunk}>cut chunk</button>
-      <button disabled={!copiedAudio && !currentAudioPosition} onClick={insertChunk}>
-        insert
-      </button>
-      <button onClick={onPlayPauseMain}>play</button>
-      <button onClick={handleSaveRecording}>Download</button>
+
+      <div style={{ paddingTop: '10px', display: 'flex', gap: '10px' }}>
+        <button onClick={onPlayPauseMain}>play</button>
+        <button onClick={copyNewChunk}>copy</button>
+        <button onClick={cutChunk}>cut chunk</button>
+        <button disabled={!copiedAudio && !currentAudioPosition} onClick={insertChunk}>
+          insert
+        </button>
+      </div>
       <div ref={waveformRef2}></div>
       {copiedAudio && <button onClick={onPlayPauseCopied}>play</button>}
     </>
