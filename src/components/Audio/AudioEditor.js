@@ -52,7 +52,7 @@ const AudioEditor = ({ url }) => {
     return () => {
       wavesurfer.destroy();
     };
-  }, []);
+  }, [url]);
 
   const copyNewChunk = () => {
     if (!coordinates) {
@@ -101,6 +101,18 @@ const AudioEditor = ({ url }) => {
     mainWs && mainWs.playPause();
   };
 
+  const handleSaveRecording = () => {
+    if (mainWs) {
+      const media = mainWs.getMediaElement();
+      const audioSrc = media.src;
+
+      const a = document.createElement('a');
+      a.href = audioSrc;
+      a.download = 'audio.mp3'; // Укажите имя файла и формат
+      a.click();
+    }
+  };
+
   return (
     <>
       <div ref={waveformRef}></div>
@@ -110,6 +122,7 @@ const AudioEditor = ({ url }) => {
         insert
       </button>
       <button onClick={onPlayPauseMain}>play</button>
+      <button onClick={handleSaveRecording}>Download</button>
       <div ref={waveformRef2}></div>
       {copiedAudio && <button onClick={onPlayPauseCopied}>play</button>}
     </>
