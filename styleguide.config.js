@@ -8,8 +8,12 @@ let sections = [
     content: 'README.md',
   },
   {
-    name: 'AudioPlayer',
-    components: ['src/components/AudioPlayer/AudioPlayer.js'],
+    name: 'Audio',
+    components: [
+      'src/components/Audio/AudioPlayer.js',
+      'src/components/Audio/AudioRecorder.js',
+      'src/components/Audio/AudioEditor.js',
+    ],
   },
   {
     name: 'Audio Markup',
