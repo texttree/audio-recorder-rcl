@@ -199,7 +199,7 @@ function AudioMarkup({ url }) {
             : 'Delete Region'}
         </button>
       </div>
-      <p>Active Region: {activeRegion ? activeRegion.id : 'None'}</p>
+      <p>Active Item: {activeRegion ? activeRegion.id : 'None'}</p>
     </>
   );
 }
