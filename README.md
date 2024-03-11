@@ -11,7 +11,7 @@
   </a>
 </div>
 
-<h2><div align="center">Audio Recodrer (RCL)</div></h2>
+<h2><div align="center">Audio Recorder (RCL)</div></h2>
 <br />
 
 <center><strong><a href="https://audio-recorder-rcl.netlify.app">Explore the docs and code playground »</a></strong></center>
