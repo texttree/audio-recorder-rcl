@@ -7,8 +7,10 @@
 
 <div align="center">
   <a href="https://github.com/texttree/audio-recorder-rcl">
-    <img src="https://github.com/texttree/audio-recorder-rcl/raw/master/images/logo.svg" alt="Logo" width="256" height="256">
-  </a>
+
+![audio-recorder-rcl](https://socialify.git.ci/texttree/audio-recorder-rcl/image?description=1&logo=https%3A%2F%2Fwww.svgrepo.com%2Fshow%2F475431%2Faudio.svg&name=1&owner=1&pattern=Charlie%20Brown&theme=Light)
+</a>
+
 </div>
 
 <h2><div align="center">Audio Recorder (RCL)</div></h2>
